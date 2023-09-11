@@ -11,13 +11,17 @@ const userList = Router();
 //vista home users
 
 userList.get("/", async (req, res) => {
-  
-  const prodsRaw = await users.getAllUsers();
- 
-  const prods = prodsRaw.map(item=>item.toObject())
-  console.log(prods)
-  res.render("users", { productos: prods });
+  try {
+    const usersRaw = await users.getAllUsers();
+    const usersFiltered = usersRaw.filter(user => user.rol !== 'admin');
+    const usersToRender = usersFiltered.map(user => user.toObject());
+    res.render("users", { productos: usersToRender });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
+  }
 });
+
 userList.put("/:id/upgradeToPremium", async (req, res) => {
     try {
       const userId = req.params.id;
